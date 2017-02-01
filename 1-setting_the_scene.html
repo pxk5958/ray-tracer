@@ -8,9 +8,11 @@
 					
 					<script src="js/three.min.js"></script>
 					<script src="js/controls/TrackballControls.js"></script>
+					<script src='js/dat.gui.min.js'></script>
 						
 			        <script>
 			        	/* global THREE */
+			        	/* global dat */
 			        	
 			        	// Set the scene size.
 						const WIDTH = 400;
@@ -22,7 +24,7 @@
 						const NEAR = 0.1;
 						const FAR = 10000;
 						
-			            var scene, camera, renderer, controls;
+			            var scene, camera, renderer, controls, gui;
 			            var sphere1, sphere2, ground, pointLight;
 						
 						init();
@@ -51,16 +53,7 @@
 							//scene.add(camera);
 							
 							controls = new THREE.TrackballControls( camera );
-							controls.target.set(0, 0, -270);
-							controls.rotateSpeed = 3.0;
-							controls.zoomSpeed = 12;
-							controls.panSpeed = 10;
-							controls.noZoom = false;
-							controls.noPan = false;
-							controls.staticMoving = true;
-							controls.dynamicDampingFactor = 0.3;
-							//controls.keys = [ 65, 83, 68 ];
-							controls.addEventListener( 'change', render );
+							resetControls();
 							
 						    // world
 						    
@@ -98,6 +91,18 @@
 							
 							var light = new THREE.AmbientLight( 0x222222 );
 							scene.add( light );
+							
+							// gui
+							
+							gui = new dat.GUI({
+							    height : 1 * 32 - 1
+							});
+							var guiParams = {
+							    resetCam: function() {
+							    	resetControls();
+							    }
+							};
+							gui.add(guiParams, 'resetCam').name('Reset Camera');
 						}
 						
 						function animate () {
@@ -111,6 +116,19 @@
 						
 						function render() {
 							renderer.render( scene, camera );
+						}
+						
+						function resetControls() {
+							controls.reset();
+							controls.target.set(0, 0, -270);
+							controls.rotateSpeed = 3.0;
+							controls.zoomSpeed = 12;
+							controls.panSpeed = 10;
+							controls.noZoom = false;
+							controls.noPan = false;
+							controls.staticMoving = true;
+							controls.dynamicDampingFactor = 0.3;
+							controls.addEventListener( 'change', render );
 						}
 			        </script>
 					
