@@ -5,7 +5,7 @@
 			<tr>
 				<td class="itemBlock" valign="top" align="center"> 
 					<div id="container_1">
-						<script src='js/dat.gui.min.js'></script>
+						<!--<button onclick="javascript:resetControls()">Reset Camera</button>-->
 					</div>
 					
 					<script src="js/three.min.js"></script>
@@ -92,18 +92,6 @@
 							
 							var light = new THREE.AmbientLight( 0x222222 );
 							scene.add( light );
-							
-							// gui
-							
-							gui = new dat.gui.GUI({
-							    height : 1 * 32 - 1
-							});
-							var guiParams = {
-							    resetCam: function() {
-							    	resetControls();
-							    }
-							};
-							gui.add(guiParams, 'resetCam').name('Reset Camera');
 						}
 						
 						function animate () {
