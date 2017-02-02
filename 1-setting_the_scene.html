@@ -53,7 +53,7 @@
 							// Add the camera to the scene.
 							//scene.add(camera);
 							
-							controls = new THREE.TrackballControls( camera );
+							controls = new THREE.TrackballControls( camera, renderer.domElement );
 							resetControls();
 							
 						    // world
