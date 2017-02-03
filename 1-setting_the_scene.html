@@ -3,124 +3,24 @@
 	<body>
 		<table width="100%">
 			<tr>
-				<td class="itemBlock" valign="top" align="center"> 
+				<td class="itemBlock" valign="top" style="width:400px" align="center"> 
 					<div id="container_1">
-						<!--<button onclick="javascript:resetControls()">Reset Camera</button>-->
 					</div>
 					
 					<script src="js/three.min.js"></script>
 					<script src="js/controls/TrackballControls.js"></script>
-						
-			        <script>
-			        	/* global THREE */
-			        	/* global dat */
-			        	
-			        	// Set the scene size.
-						const WIDTH = 400;
-						const HEIGHT = 300;
-						
-						// Set some camera attributes.
-						const VIEW_ANGLE = 45;
-						const ASPECT = WIDTH / HEIGHT;
-						const NEAR = 0.1;
-						const FAR = 10000;
-						
-			            var scene, camera, renderer, controls, gui;
-			            var sphere1, sphere2, ground, pointLight;
-						
-						init();
-						animate();
-						
-						function init() {
-							// Create a WebGL renderer, camera
-							// and a scene
-							scene = new THREE.Scene();
-							
-							// Start the renderer
-							renderer = new THREE.WebGLRenderer();
-							renderer.setSize( WIDTH, HEIGHT );
-							var container = document.getElementById( 'container_1' );
-							container.appendChild( renderer.domElement );
-							
-							camera =
-							    new THREE.PerspectiveCamera(
-							        VIEW_ANGLE,
-							        ASPECT,
-							        NEAR,
-							        FAR
-							    );
-							
-							// Add the camera to the scene.
-							//scene.add(camera);
-							
-							controls = new THREE.TrackballControls( camera, renderer.domElement );
-							resetControls();
-							
-						    // world
-						    
-						    var groundMaterial = new THREE.MeshPhongMaterial( { color: 0x00ff00, wireframe: false } );
-						    ground = new THREE.Mesh(
-						    	new THREE.PlaneGeometry(400, 1600, 32, 32),
-						    	groundMaterial
-						    	);
-						    ground.position.set(-85, -80, -300);
-						    ground.rotation.x = -Math.PI / 2;
-						    scene.add(ground);
-							
-							var sphere1Material = new THREE.MeshPhongMaterial( { color: 0xff0000, wireframe: false } );
-						    sphere1 = new THREE.Mesh(
-								new THREE.SphereGeometry(50, 16, 16),
-								sphere1Material
-								);
-							sphere1.position.set(2, 5, -240);
-							scene.add(sphere1);
-							
-							var sphere2Material = new THREE.MeshPhongMaterial( { color: 0x0000ff, wireframe: false } );
-						    sphere2 = new THREE.Mesh(
-								new THREE.SphereGeometry(40, 16, 16),
-								sphere2Material
-								);
-							sphere2.position.set(-65, -30, -300);
-							scene.add(sphere2);
-						
-							
-							// lights
-							
-							pointLight = new THREE.PointLight(0xFFFFFF);
-							pointLight.position.set(50, 200, 150);
-							scene.add(pointLight);
-							
-							var light = new THREE.AmbientLight( 0x222222 );
-							scene.add( light );
-						}
-						
-						function animate () {
-							// Schedule the next frame.
-							requestAnimationFrame(animate);
-							
-							controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
-						
-							render();
-						}
-						
-						function render() {
-							renderer.render( scene, camera );
-						}
-						
-						function resetControls() {
-							controls.reset();
-							controls.target.set(0, 0, -270);
-							controls.rotateSpeed = 3.0;
-							controls.zoomSpeed = 12;
-							controls.panSpeed = 10;
-							controls.noZoom = false;
-							controls.noPan = false;
-							controls.staticMoving = true;
-							controls.dynamicDampingFactor = 0.3;
-							controls.addEventListener( 'change', render );
-						}
-			        </script>
-					
+			        <script src="js/1-setting_the_scene.js"></script>
+				</td>
+				
+				<td class="itemBlock" valign="top" align="center">
+					<strong>Controls:</strong><br>
+					<p style="margin-bottom:0"><strong>Rotate:</strong><br>
+					Left Mouse Button<br>
+					<p style="margin-bottom:0"><strong>Pan:</strong><br>
+					Right Mouse Button<br>
+					<p style="margin-bottom:0"><strong>Zoom</strong><br>
+					Scroll Wheel / Middle Mouse Button<br>
+					<p style="margin-bottom:0"><button onclick="javascript:resetControls()">Reset Camera</button>
 				</td>
 			</tr>
 
@@ -137,6 +37,12 @@
 					Position: [0, 0, 0], LookAt: [0, 0, -270]
 					<p style="margin-bottom:0"><strong>Light:</strong><br>
 					Position: [50, 200, 150], Color: 0xFFFFFF
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="itemBlock" colspan="2" valign="bottom">
+					<a href="js/1-setting_the_scene.js">Source Code</a>
 				</td>
 			</tr>
 		</table>
