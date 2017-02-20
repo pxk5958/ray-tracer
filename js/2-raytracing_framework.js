@@ -1,6 +1,7 @@
 /* global THREE */
 
-
+var raytracer2 = function() {
+	
 // Set the controls speeds
 const ROTATE = 15;
 const ZOOM = 10;
@@ -10,7 +11,7 @@ const NEAR = 0.1;
 const FAR = 10000;
 
 var gl = null;
-var canvas = document.getElementById('canvas');
+var canvas = document.getElementById('canvas2');
 var camera, ui, WIDTH = 800, HEIGHT = 600, nextId = 0;
 
 
@@ -1021,7 +1022,7 @@ class RayTracer {
             gl.deleteProgram(this.tracerProgram);
         }
         var tracerFragmentSource = generateTracerFragmentSource(objects);
-        console.log(tracerFragmentSource);
+        //console.log(tracerFragmentSource);
         this.tracerProgram = compileShader(tracerVertexSource, tracerFragmentSource);
         this.tracerVertexAttribute = gl.getAttribLocation(this.tracerProgram, 'vertex');
         gl.enableVertexAttribArray(this.tracerVertexAttribute);
@@ -1126,8 +1127,6 @@ class UI {
 
 
 
-initWebGL();
-
 function initWebGL() {
     try { 
         gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl'); 
@@ -1139,6 +1138,7 @@ function initWebGL() {
         HEIGHT = canvas.clientHeight.toFixed(1);
         ui = new UI();
         ui.setObjects(generateScene());
+		result.ui = ui;
         var start = new Date();
         setInterval(function(){ tick((new Date() - start) * 0.001); }, 1000 / 60);
     } else {
@@ -1189,3 +1189,14 @@ function generateScene() {
     
     return objects;
 }
+
+var result = {
+	initWebGL: initWebGL,
+	ui: ui
+};
+
+return result;
+
+}();
+
+raytracer2.initWebGL();

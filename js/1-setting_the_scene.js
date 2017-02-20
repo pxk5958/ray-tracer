@@ -1,12 +1,13 @@
 /* global THREE */
 
+var raytracer1 = function() {
+
 // Set the scene size.
-const WIDTH = 400;
-const HEIGHT = 300;
+const WIDTH = 640;
+const HEIGHT = 480;
 
 // Set some camera attributes.
 const VIEW_ANGLE = 45;
-const ASPECT = WIDTH / HEIGHT;
 const NEAR = 0.1;
 const FAR = 10000;
 
@@ -18,8 +19,6 @@ const PAN = 6;
 var scene, camera, renderer, controls;
 var sphere1, sphere2, ground, pointLight;
 
-init();
-animate();
 
 /**
  * Initializes WebGL using three.js and sets up the scene
@@ -33,14 +32,14 @@ function init() {
 	renderer.setSize( WIDTH, HEIGHT );
 
 	// Add the render window to the document
-    var container = document.getElementById( 'container_1' );
+    var container = document.getElementById( 'canvas1' );
 	container.appendChild( renderer.domElement );
 	
 	// Create a camera
 	camera =
 	    new THREE.PerspectiveCamera(
 	        VIEW_ANGLE,
-	        ASPECT,
+	        WIDTH/HEIGHT,
 	        NEAR,
 	        FAR
 	    );
@@ -125,3 +124,14 @@ function resetControls() {
 	controls.reset();
 	controls.target.set(0, 0, -270);
 }
+
+return {
+	init: init,
+	animate: animate,
+	resetControls: resetControls
+}
+
+}();
+
+raytracer1.init();
+raytracer1.animate();
