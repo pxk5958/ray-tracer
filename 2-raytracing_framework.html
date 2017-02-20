@@ -4,13 +4,14 @@
 		<table width="100%">
 			<tr>
 				<td class="itemBlock" valign="top" style="width:400px" align="center"> 
-					<canvas id="canvas" width = "800" height = "600">
+					<div align="center"><strong>Demo:</strong></div><br>
+					<canvas id="canvas" width = "400" height = "300">
 						<div id="error"><noscript>Please enable JavaScript.</noscript></div>
 					</canvas>
 					
 					<script src="js/three.min.js"></script>
 					<script src="js/controls/TrackballControls.js"></script>
-			        <script src="js/raytracer.js"></script>
+			        <script src="js/2-raytracing_framework.js"></script>
 				</td>
 				
 				<td class="itemBlock" valign="top">
@@ -19,22 +20,6 @@
 					<p style="margin-bottom:0"><strong>Pan: </strong>Right Mouse Button<br>
 					<p style="margin-bottom:0"><strong>Zoom: </strong>Scroll Wheel / Middle Mouse Button<br>
 					<button onclick="javascript:ui.resetControls()">Reset Camera</button>
-				</td>
-			</tr>
-
-			<tr>
-				<td class="itemBlock" colspan="2" valign="bottom">
-					The scene objects' sizes and locations are as follows.
-					<p style="margin-bottom:0"><strong>Floor:</strong><br>
-					Position: [-85, -80, -300], Rotation: [-PI/2, 0, 0], Size: [400, 1600]
-					<p style="margin-bottom:0"><strong>Large sphere:</strong><br>
-					Position: [2, 5, -240], Radius: 50
-					<p style="margin-bottom:0"><strong>Small sphere:</strong><br>
-					Position: [-65, -30, -300], Radius: 40
-					<p style="margin-bottom:0"><strong>Camera:</strong><br>
-					Position: [0, 0, 0], LookAt: [0, 0, -270]
-					<p style="margin-bottom:0"><strong>Light:</strong><br>
-					Position: [50, 200, 150], Color: 0xFFFFFF
 				</td>
 			</tr>
 			

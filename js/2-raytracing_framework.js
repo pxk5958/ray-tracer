@@ -1169,12 +1169,12 @@ function generateScene() {
     var cube = new Cube(nextId++, new THREE.Vector3(-30, -30, 30), new THREE.Vector3(30, 30, -30));
     cube.scale(new THREE.Vector3(1.5, 1, 1));
     cube.rotate(new THREE.Euler(-Math.PI / 4, Math.PI / 4, 0, 'XYZ'));
-    cube.translate(new THREE.Vector3(-50, 75, -320));
+    cube.translate(new THREE.Vector3(-70, 25, -370));
     cube.setColor(new THREE.Color(0.5, 0, 0.5));
     
     var cylinder = new Cylinder(nextId++, -30, 30, 30);
     cylinder.rotate(new THREE.Euler(-Math.PI / 3, 0, -Math.PI / 6, 'XYZ'));
-    cylinder.translate(new THREE.Vector3(55, 70, -300));
+    cylinder.translate(new THREE.Vector3(50, 70, -300));
     cylinder.setColor(new THREE.Color(0, 0.5, 0.5));
     
     var torus = new Torus(nextId++, 20, 10);
