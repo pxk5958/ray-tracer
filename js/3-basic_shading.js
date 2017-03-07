@@ -20,6 +20,7 @@ const SPHERE_EPSILON = 0.095;
 const PLANE_RECT_EPSILON = 0.095;
 const PI = 3.1415926535897932384;
 const MAX_RECURSION_DEPTH = 1;
+const SUPERSAMPLING = 5;   // takes average of NxN pixels
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +38,58 @@ var nextPointLightId = 0;
 ////////////////////////////////////////////////////////////////////////////////
 // Shaders
 ////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Vertex shader for rendering to canvas 
+ */
+
+var renderVertexSource = `
+attribute vec3 vertex;
+varying vec2 texCoord;
+
+void main() {
+    texCoord = vertex.xy * 0.5 + 0.5;
+    gl_Position = vec4(vertex, 1.0);
+}
+`;
+
+/**
+ * Fragment shader for rendering to canvas 
+ */
+
+var renderFragmentSource = `
+precision highp float;
+
+const int SUPERSAMPLING = ` + SUPERSAMPLING + `;
+
+varying vec2 texCoord;
+uniform sampler2D texture;
+
+void main() {
+    // weighted samples from the larger render-to-texture to the canvas
+    vec4 sampledColor = vec4(0.0, 0.0, 0.0, 1.0);
+    if (mod(float(SUPERSAMPLING), 2.0) > 0.0) {
+        const int oddN = SUPERSAMPLING / 2;
+        for (int i = -oddN; i <= oddN; i++) {
+            for (int j = -oddN; j <= oddN; j++) {
+                vec2 offset = vec2(float(i) / float(` + WIDTH * SUPERSAMPLING + `), 
+                                float(j) / float(` + HEIGHT * SUPERSAMPLING + `));
+                sampledColor += texture2D(texture, clamp(texCoord + offset, vec2(0.0), vec2(1.0)));
+            }
+        }
+    } else {
+        const float evenN = float(SUPERSAMPLING / 2) - 0.5;
+        for (float i = -evenN; i <= evenN; i += 1.0) {
+            for (float j = -evenN; j <= evenN; j += 1.0) {
+                vec2 offset = vec2(i / float(` + WIDTH * SUPERSAMPLING + `), 
+                                j / float(` + HEIGHT * SUPERSAMPLING + `));
+                sampledColor += texture2D(texture, clamp(texCoord + offset, vec2(0.0), vec2(1.0)));
+            }
+        }
+    }
+    gl_FragColor = sampledColor / float(SUPERSAMPLING * SUPERSAMPLING);
+}
+`;
 
 /**
  * Vertex shader for Ray tracing 
@@ -75,6 +128,7 @@ uniform vec3 cameraPos;
 varying vec3 primaryRayDir;
 uniform float time;
 
+// Intersection information
 struct HitInfo {
     bool hit;
     vec3 hitPoint;
@@ -85,6 +139,7 @@ struct HitInfo {
     int materialId;
 };
 
+// Materials
 int PHONG_MATERIAL = 0;
 int PHONG_BLINN_MATERIAL = 1;
 struct Phong {
@@ -98,6 +153,7 @@ struct Phong {
 uniform Phong phongMaterials[` + (nextPhongId > 0 ? nextPhongId : 1) + `];
 uniform Phong phongBlinnMaterials[` + (nextPhongBlinnId > 0 ? nextPhongBlinnId : 1) + `];
 
+// Lights
 struct PointLight {
     vec3 position;
     vec3 color;
@@ -297,6 +353,8 @@ vec3 illuminate(HitInfo hitInfo, vec3 rayDir) {
     vec3 accumulatedColor = vec3(0.0);
     
     Phong material;
+    // TODO: due to limitation of GLSL to have constant array indices, have to
+    // iterate over the materials to find the correct one. Any better workaround?
     if (hitInfo.materialType == PHONG_MATERIAL) {
         for (int i = 0; i < ` + nextPhongId + `; i++) {
             if (i == hitInfo.materialId) {
@@ -320,6 +378,7 @@ vec3 illuminate(HitInfo hitInfo, vec3 rayDir) {
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
     
+    // Iterate over the point lights
     for (int i = 0; i < ` + nextPointLightId + `; i++) {
         vec3 S = normalize(pointLights[i].position - hitInfo.hitPoint);
         bool isInShadow = castShadow(hitInfo.hitPoint + hitInfo.normal * EPSILON, S);
@@ -378,13 +437,14 @@ vec3 castRay(vec3 rayOrigin, vec3 rayDir) {
                 hitInfo.materialType = materialType;
                 hitInfo.materialId = materialId;
             } else {
+                // ray did not hit any object
                 accumulatedColor += colorMask * bgColor;
                 break;
             }
         
             accumulatedColor += colorMask * illuminate(hitInfo, rayDir);
         
-        // next ray origin
+        // next reflected ray
         rayOrigin = hitInfo.hitPoint;
         rayDir = reflect(rayDir, hitInfo.normal);
     }
@@ -831,7 +891,6 @@ class PointLight extends Light {
 }
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // class RayTracer
 ////////////////////////////////////////////////////////////////////////////////
@@ -849,6 +908,28 @@ class RayTracer {
         this.vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        
+        // create frame buffer
+        this.framebuffer = gl.createFramebuffer();
+        
+        // create textures to render to
+        var type = gl.getExtension('OES_texture_float') ? gl.FLOAT : gl.UNSIGNED_BYTE;
+        this.textures = [];
+        for (var i = 0; i < 1; i++) {
+            this.textures.push(gl.createTexture());
+            gl.bindTexture(gl.TEXTURE_2D, this.textures[i]);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, WIDTH * SUPERSAMPLING, HEIGHT * SUPERSAMPLING, 0, gl.RGB, type, null);
+        }
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        
+        // create render shader
+        this.renderProgram = compileShader(renderVertexSource, renderFragmentSource);
+        this.renderVertexAttribute = gl.getAttribLocation(this.renderProgram, 'vertex');
+        gl.enableVertexAttribArray(this.renderVertexAttribute);
         
         // initialize objects and ray tracing shader
         this.scene = {
@@ -869,7 +950,7 @@ class RayTracer {
             gl.deleteProgram(this.tracerProgram);
         }
         var tracerFragmentSource = generateTracerFragmentSource(this.scene.objects);
-        console.log(tracerFragmentSource);
+        //console.log(tracerFragmentSource);
         this.tracerProgram = compileShader(tracerVertexSource, tracerFragmentSource);
         this.tracerVertexAttribute = gl.getAttribLocation(this.tracerProgram, 'vertex');
         gl.enableVertexAttribArray(this.tracerVertexAttribute);
@@ -897,13 +978,25 @@ class RayTracer {
         this.uniforms.ray11 = getPrimaryRay(+1, +1);
         this.uniforms.time = time;
         
+        // render to texture
         gl.useProgram(this.tracerProgram);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+        gl.viewport(0, 0, WIDTH * SUPERSAMPLING, HEIGHT * SUPERSAMPLING);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.textures[0], 0);
+        gl.vertexAttribPointer(this.tracerVertexAttribute, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, WIDTH, HEIGHT);
         
         // set uniforms
         setUniforms(this.tracerProgram, this.uniforms);
     }
 
     render() {
+        // render from texture to canvas
+        gl.useProgram(this.renderProgram);
+        gl.bindTexture(gl.TEXTURE_2D, this.textures[0]);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(this.tracerVertexAttribute, 2, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -1033,7 +1126,7 @@ function generateScene() {
         new THREE.Vector3(0.1, 1, 0.1));
         
     lights.push(pointLight1);
-    //lights.push(pointLight2);
+    lights.push(pointLight2);
     
     var sphere1Material = new Phong(nextPhongId++, 0.7, 0.6, 0.7, 16, 
         new THREE.Vector3(0.75, 0.1, 0.1), 
