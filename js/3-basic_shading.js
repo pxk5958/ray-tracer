@@ -913,7 +913,7 @@ class RayTracer {
         this.framebuffer = gl.createFramebuffer();
         
         // create textures to render to
-        var type = gl.getExtension('OES_texture_float') ? gl.FLOAT : gl.UNSIGNED_BYTE;
+        var type = /*gl.getExtension('OES_texture_float_linear') ? gl.FLOAT : */gl.UNSIGNED_BYTE;
         this.textures = [];
         for (var i = 0; i < 1; i++) {
             this.textures.push(gl.createTexture());
@@ -1126,7 +1126,7 @@ function generateScene() {
         new THREE.Vector3(0.1, 1, 0.1));
         
     lights.push(pointLight1);
-    lights.push(pointLight2);
+    //lights.push(pointLight2);
     
     var sphere1Material = new Phong(nextPhongId++, 0.7, 0.6, 0.7, 16, 
         new THREE.Vector3(0.75, 0.1, 0.1), 
