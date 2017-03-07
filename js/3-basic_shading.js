@@ -1,6 +1,6 @@
 /* global THREE */
 
-var raytracer2 = function() {
+var raytracer3 = function() {
 	
 ////////////////////////////////////////////////////////////////////////////////
 // Namespace constants
@@ -28,7 +28,7 @@ const SUPERSAMPLING = 5;   // takes average of NxN pixels
 ////////////////////////////////////////////////////////////////////////////////
 
 var gl = null;
-var canvas = document.getElementById('canvas2');
+var canvas = document.getElementById('canvas3');
 var camera, ui, WIDTH = 800, HEIGHT = 600;
 var nextObjectId = 0;
 var nextPhongId = 0, nextPhongBlinnId = 0;
