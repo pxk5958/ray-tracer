@@ -1209,4 +1209,4 @@ return result;
 
 }();
 
-raytracer2.initWebGL();
+raytracer3.initWebGL();
