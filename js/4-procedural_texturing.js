@@ -1851,17 +1851,17 @@ function initWebGL() {
         HEIGHT = canvas.clientHeight.toFixed(1);
         
         // TODO: find better way to load 3D models
-        //loadOBJ("models/teapot.obj").then(function(data) {
-        //    var meshes = {
-        //        "models/teapot.obj": data
-        //    };
+        loadOBJ("models/teapot.obj").then(function(data) {
+            var meshes = {
+                "models/teapot.obj": data
+            };
             
             ui = new UI();
             var scene = generateScene(meshes);
             ui.setScene(scene);
             var start = new Date();
             setInterval(function(){ tick((new Date() - start) * 0.001); }, 1000 / 60);
-        //});
+        });
         
     } else {
         alert('Your browser does not support WebGL.');
