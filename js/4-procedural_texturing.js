@@ -28,7 +28,7 @@ const STATS = 0;   // 0: fps, 1: ms, 2: mb, 3+: custom
 ////////////////////////////////////////////////////////////////////////////////
 
 var gl = null;
-var canvas = document.getElementById('projectCanvas');
+var canvas = document.getElementById('canvas4');
 var camera, ui, WIDTH = 800, HEIGHT = 600;
 var nextObjectId = 0;
 var nextPhongId = 0, nextPhongBlinnId = 0, nextPhongCheckeredId = 0;
@@ -1931,11 +1931,11 @@ function generateScene(meshes) {
     lights.push(pointLight1);
     //lights.push(pointLight2);
     
-    var sphere1Material = new Phong(nextPhongId++, 0.7, 0.6, 0.7, 16, 0, 0.8, 1.6, 
+    var sphere1Material = new Phong(nextPhongId++, 0.7, 0.6, 0.7, 16, 0, 0, 0, 
         new THREE.Vector3(0.4, 0.4, 0.4), 
         new THREE.Vector3(0.7, 0.7, 0.7));
         
-    var sphere2Material = new Phong(nextPhongId++, 0.55, 0.7, 0.75, 8, 0.5, 0, 0, 
+    var sphere2Material = new Phong(nextPhongId++, 0.55, 0.7, 0.75, 8, 0, 0, 0, 
         new THREE.Vector3(0.6, 0.6, 0.6), 
         new THREE.Vector3(0.7, 0.7, 0.7));
         
