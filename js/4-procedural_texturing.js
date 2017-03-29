@@ -20,7 +20,7 @@ const PLANE_RECT_EPSILON = 0.095;
 const TRIANGLE_EPSILON = 0.0001;
 const PI = 3.1415926535897932384;
 const MAX_RECURSION_DEPTH = 5;
-const SUPERSAMPLING = 5;   // takes average of NxN pixels
+const SUPERSAMPLING = 1;   // takes average of NxN pixels
 const STATS = 0;   // 0: fps, 1: ms, 2: mb, 3+: custom
 
 ////////////////////////////////////////////////////////////////////////////////
