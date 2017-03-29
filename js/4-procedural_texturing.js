@@ -20,7 +20,7 @@ const PLANE_RECT_EPSILON = 0.095;
 const TRIANGLE_EPSILON = 0.0001;
 const PI = 3.1415926535897932384;
 const MAX_RECURSION_DEPTH = 5;
-const SUPERSAMPLING = 1;   // takes average of NxN pixels
+const SUPERSAMPLING = 5;   // takes average of NxN pixels
 const STATS = 0;   // 0: fps, 1: ms, 2: mb, 3+: custom
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1851,17 +1851,17 @@ function initWebGL() {
         HEIGHT = canvas.clientHeight.toFixed(1);
         
         // TODO: find better way to load 3D models
-        loadOBJ("models/teapot.obj").then(function(data) {
-            var meshes = {
-                "models/teapot.obj": data
-            };
+        //loadOBJ("models/teapot.obj").then(function(data) {
+        //    var meshes = {
+        //        "models/teapot.obj": data
+        //    };
             
             ui = new UI();
             var scene = generateScene(meshes);
             ui.setScene(scene);
             var start = new Date();
             setInterval(function(){ tick((new Date() - start) * 0.001); }, 1000 / 60);
-        });
+        //});
         
     } else {
         alert('Your browser does not support WebGL.');
