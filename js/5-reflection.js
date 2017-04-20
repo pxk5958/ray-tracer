@@ -1735,7 +1735,7 @@ class UI {
     }
     
     update(time) {
-        this.animate(time);
+        //this.animate(time);
         
         this.controls.update();
         camera.updateMatrixWorld(true);
@@ -1940,7 +1940,7 @@ function generateScene(meshes) {
     lights.push(pointLight1);
     lights.push(pointLight2);
     
-    var sphere1Material = new Phong(nextPhongId++, 0.7, 0.6, 0.7, 16, 0, 0.8, 1.6, 
+    var sphere1Material = new Phong(nextPhongId++, 0.7, 0.6, 0.7, 16, 0, 0, 1.6, 
         new THREE.Vector3(0.4, 0.4, 0.4), 
         new THREE.Vector3(0.7, 0.7, 0.7));
         
