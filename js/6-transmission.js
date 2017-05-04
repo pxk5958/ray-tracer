@@ -673,7 +673,7 @@ vec3 castRayRecursive(vec3 primaryRayOrigin, vec3 primaryRayDir) {
                 rayTree[node*2 + 2].rayOrigin = outside ? (hitInfo.hitPoint - bias) : (hitInfo.hitPoint + bias);
                 vec3 N = outside ? hitInfo.normal : -(hitInfo.normal);
                 float eta = outside ? (1.0 / ior) : ior;
-                float cosi = dot(-rayDir, N);
+                float cosi = dot(-N, rayDir);
                 float k = 1.0 + eta * eta * (cosi * cosi - 1.0);
                 vec3 refrDir = eta * rayDir + N * (eta * cosi - sqrt(k));
                 normalize(refrDir);

@@ -1,3 +1,11 @@
+/**
+ * WebGL Ray Tracer
+ *
+ * https://github.com/pxk5958/ray-tracer
+ *
+ * @author Pratith Kanagaraj <pxk5958@rit.edu>, 2017
+ */
+
 /* global THREE */
 /* global Stats */
 
@@ -43,9 +51,10 @@ var triangles = [];
  * Vertex shader for rendering to canvas 
  */
 
-var renderVertexSource = `
-attribute vec3 vertex;
-varying vec2 texCoord;
+var renderVertexSource = `#version 300 es
+
+in vec3 vertex;
+out vec2 texCoord;
 
 void main() {
     texCoord = vertex.xy * 0.5 + 0.5;
@@ -57,13 +66,16 @@ void main() {
  * Fragment shader for rendering to canvas 
  */
 
-var renderFragmentSource = `
+var renderFragmentSource = `#version 300 es
+
 precision highp float;
 
 const int SUPERSAMPLING = ` + SUPERSAMPLING + `;
 
-varying vec2 texCoord;
-uniform sampler2D texture;
+out vec4 fragmentColor;
+
+in vec2 texCoord;
+uniform sampler2D tex;
 
 void main() {
     // weighted samples from the larger render-to-texture to the canvas
@@ -74,7 +86,7 @@ void main() {
             for (int j = -oddN; j <= oddN; j++) {
                 vec2 offset = vec2(float(i) / float(` + WIDTH * SUPERSAMPLING + `), 
                                 float(j) / float(` + HEIGHT * SUPERSAMPLING + `));
-                sampledColor += texture2D(texture, clamp(texCoord + offset, vec2(0.0), vec2(1.0)));
+                sampledColor += texture(tex, clamp(texCoord + offset, vec2(0.0), vec2(1.0)));
             }
         }
     } else {
@@ -83,11 +95,11 @@ void main() {
             for (float j = -evenN; j <= evenN; j += 1.0) {
                 vec2 offset = vec2(i / float(` + WIDTH * SUPERSAMPLING + `), 
                                 j / float(` + HEIGHT * SUPERSAMPLING + `));
-                sampledColor += texture2D(texture, clamp(texCoord + offset, vec2(0.0), vec2(1.0)));
+                sampledColor += texture(tex, clamp(texCoord + offset, vec2(0.0), vec2(1.0)));
             }
         }
     }
-    gl_FragColor = sampledColor / float(SUPERSAMPLING * SUPERSAMPLING);
+    fragmentColor = sampledColor / float(SUPERSAMPLING * SUPERSAMPLING);
 }
 `;
 
@@ -95,8 +107,9 @@ void main() {
  * Vertex shader for drawing line
  */
 
-var lineVertexSource = `
-attribute vec3 vertex;
+var lineVertexSource = `#version 300 es
+
+in vec3 vertex;
 uniform vec3 cubeMin;
 uniform vec3 cubeMax;
 uniform mat4 modelViewProjection;
@@ -109,10 +122,12 @@ void main() {
  * Fragment shader for drawing line
  */
 
-var lineFragmentSource = `
+var lineFragmentSource = `#version 300 es
+
 precision highp float;
+out vec4 fragmentColor;
 void main() {
-    gl_FragColor = vec4(1.0);
+    fragmentColor = vec4(1.0);
 }
 `;
 
@@ -120,10 +135,11 @@ void main() {
  * Vertex shader for Ray tracing 
  */
  
-var tracerVertexSource = `
-attribute vec3 vertex;
+var tracerVertexSource = `#version 300 es
+
+in vec3 vertex;
 uniform vec3 ray00, ray01, ray10, ray11;
-varying vec3 primaryRayDir;
+out vec3 primaryRayDir;
 
 void main() {
     vec2 fraction = vertex.xy * 0.5 + 0.5;
@@ -137,7 +153,8 @@ void main() {
  */
 
 function generateTracerFragmentSource(objects) {
-    return `
+    return `#version 300 es
+    
 precision highp float;
 
 const float PI = ` + PI + `;
@@ -147,10 +164,12 @@ const float SPHERE_EPSILON = ` + SPHERE_EPSILON + `;
 const float PLANE_RECT_EPSILON = ` + PLANE_RECT_EPSILON + `;
 const float TRIANGLE_EPSILON = ` + TRIANGLE_EPSILON + `;
 
+out vec4 fragmentColor;
+
 uniform vec3 bgColor;
 uniform vec3 ambientLight;
 uniform vec3 cameraPos;
-varying vec3 primaryRayDir;
+in vec3 primaryRayDir;
 uniform float time;
 
 
@@ -464,9 +483,9 @@ bool castShadow(vec3 rayOrigin, vec3 rayDir) {
     for (int i = 0; i < numTriangles; i++) {
         vec3 vertices[3];
         vec2 vCoord = getTriTexCoord(i);
-        vertices[0] = vec3(texture2D(trianglesV0, vCoord));
-        vertices[1] = vec3(texture2D(trianglesV1, vCoord));
-        vertices[2] = vec3(texture2D(trianglesV2, vCoord));
+        vertices[0] = vec3(texture(trianglesV0, vCoord));
+        vertices[1] = vec3(texture(trianglesV1, vCoord));
+        vertices[2] = vec3(texture(trianglesV2, vCoord));
         
         if(intersectTriangle(rayOrigin, rayDir, hitInfo, vertices)) {
             return true;
@@ -483,75 +502,58 @@ vec3 illuminate(HitInfo hitInfo, vec3 rayDir, out float reflectionMix,
     float ka, kd, ks, ke, kReflect, kRefract, ior;
     vec3 Co, Cs;
     
-    // TODO: due to limitation of GLSL to have constant array indices, have to
-    // iterate over the materials to find the correct one. Any better workaround?
     if (hitInfo.materialType == PHONG_MATERIAL) {
-        for (int i = 0; i < ` + nextPhongId + `; i++) {
-            if (i == hitInfo.materialId) {
-                Phong material = phongMaterials[i];
-                ka = material.ka;
-                kd = material.kd;
-                ks = material.ks;
-                ke = material.ke;
-                kReflect = material.kReflect;
-                kRefract = material.kRefract;
-                ior = material.ior;
-                Co = material.Co;
-                Cs = material.Cs;
-                break;
-            }
-        }
+        Phong material = phongMaterials[hitInfo.materialId];
+        ka = material.ka;
+        kd = material.kd;
+        ks = material.ks;
+        ke = material.ke;
+        kReflect = material.kReflect;
+        kRefract = material.kRefract;
+        ior = material.ior;
+        Co = material.Co;
+        Cs = material.Cs;
     } else if (hitInfo.materialType == PHONG_BLINN_MATERIAL) {
-        for (int i = 0; i < ` + nextPhongBlinnId + `; i++) {
-            if (i == hitInfo.materialId) {
-                Phong material = phongBlinnMaterials[i];
-                ka = material.ka;
-                kd = material.kd;
-                ks = material.ks;
-                ke = material.ke;
-                kReflect = material.kReflect;
-                kRefract = material.kRefract;
-                ior = material.ior;
-                Co = material.Co;
-                Cs = material.Cs;
-                break;
-            }
-        }
+        Phong material = phongBlinnMaterials[hitInfo.materialId];
+        ka = material.ka;
+        kd = material.kd;
+        ks = material.ks;
+        ke = material.ke;
+        kReflect = material.kReflect;
+        kRefract = material.kRefract;
+        ior = material.ior;
+        Co = material.Co;
+        Cs = material.Cs;
     } else if (hitInfo.materialType == PHONG_CHECKERED_MATERIAL) {
-        for (int i = 0; i < ` + nextPhongCheckeredId + `; i++) {
-            if (i == hitInfo.materialId) {
-                PhongCheckered material = phongCheckeredMaterials[i];
-                ka = material.ka;
-                kd = material.kd;
-                ks = material.ks;
-                ke = material.ke;
-                kReflect = material.kReflect;
-                kRefract = material.kRefract;
-                ior = material.ior;
-                Cs = material.Cs;
-                // Compute Co from Co1 and Co2 based on (u,v) coordinates
-                float x = hitInfo.localHitPoint.x;
-                float z = hitInfo.localHitPoint.z;
-                float u = x + 0.5;
-                float v = z + 0.5;
-                float sizeU = 1.0 / 12.0;
-                float sizeV = 450.0 / (1600.0 * 12.0);
-                float row = float(int(u / sizeU));
-                float col = float(int(v / sizeV));
-                if (int(mod(row, 2.0)) == 0) {
-                    if (int(mod(col, 2.0)) == 0) {
-                        Co = material.Co1;
-                    } else {
-                        Co = material.Co2;
-                    }
-                } else {
-                    if (int(mod(col, 2.0)) == 0) {
-                        Co = material.Co2;
-                    } else {
-                        Co = material.Co1;
-                    }
-                }
-                break;
+        PhongCheckered material = phongCheckeredMaterials[hitInfo.materialId];
+        ka = material.ka;
+        kd = material.kd;
+        ks = material.ks;
+        ke = material.ke;
+        kReflect = material.kReflect;
+        kRefract = material.kRefract;
+        ior = material.ior;
+        Cs = material.Cs;
+        // Compute Co from Co1 and Co2 based on (u,v) coordinates
+        float x = hitInfo.localHitPoint.x;
+        float z = hitInfo.localHitPoint.z;
+        float u = x + 0.5;
+        float v = z + 0.5;
+        float sizeU = 1.0 / 12.0;
+        float sizeV = 450.0 / (1600.0 * 12.0);
+        float row = float(int(u / sizeU));
+        float col = float(int(v / sizeV));
+        if (int(mod(row, 2.0)) == 0) {
+            if (int(mod(col, 2.0)) == 0) {
+                Co = material.Co1;
+            } else {
+                Co = material.Co2;
+            }
+        } else {
+            if (int(mod(col, 2.0)) == 0) {
+                Co = material.Co2;
+            } else {
+                Co = material.Co1;
             }
         }
     }
@@ -629,9 +631,9 @@ vec3 castRayRecursive(vec3 primaryRayOrigin, vec3 primaryRayDir) {
             for (int i = 0; i < numTriangles; i++) {
                 vec3 vertices[3];
                 vec2 vCoord = getTriTexCoord(i);
-                vertices[0] = vec3(texture2D(trianglesV0, vCoord));
-                vertices[1] = vec3(texture2D(trianglesV1, vCoord));
-                vertices[2] = vec3(texture2D(trianglesV2, vCoord));
+                vertices[0] = vec3(texture(trianglesV0, vCoord));
+                vertices[1] = vec3(texture(trianglesV1, vCoord));
+                vertices[2] = vec3(texture(trianglesV2, vCoord));
                 
                 if (intersectTriangle(rayOrigin, rayDir, hitInfo, vertices) 
                     && (hitInfo.t < tMin)) {
@@ -640,7 +642,7 @@ vec3 castRayRecursive(vec3 primaryRayOrigin, vec3 primaryRayDir) {
                     tMin = hitInfo.t;
                     normal = hitInfo.normal;
                     localHitPoint = hitInfo.localHitPoint;
-                    vec2 mat = vec2(texture2D(trianglesMat, vCoord));
+                    vec2 mat = vec2(texture(trianglesMat, vCoord));
                     materialType = int(mat.r);  // Material type is stored as R value
                     materialId = int(mat.g);  // Material id is stored as G value
                 }
@@ -674,7 +676,7 @@ vec3 castRayRecursive(vec3 primaryRayOrigin, vec3 primaryRayDir) {
                 vec3 N = outside ? hitInfo.normal : -(hitInfo.normal);
                 float eta = outside ? (1.0 / ior) : ior;
                 float cosi = dot(-N, rayDir);
-                float k = 1.0 - eta * eta * (1.0 - cosi * cosi);
+                float k = 1.0 + eta * eta * (cosi * cosi - 1.0);
                 vec3 refrDir = rayDir * eta + N * (eta * cosi - sqrt(k));
                 normalize(refrDir);
                 rayTree[node*2 + 2].rayDir = refrDir;
@@ -714,9 +716,9 @@ vec3 castRayRecursive(vec3 primaryRayOrigin, vec3 primaryRayDir) {
 }
 
 void main() {
-    gl_FragColor = vec4(castRayRecursive(cameraPos, primaryRayDir), 1.0);
+    fragmentColor = vec4(castRayRecursive(cameraPos, primaryRayDir), 1.0);
     if (error == true) {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);
     }
 }
     `;
@@ -806,6 +808,44 @@ function compileShader(vertexSource, fragmentSource) {
     return shaderProgram;
 }
 
+
+class kdNode {
+    constructor(parent) {
+        this.parent = parent;
+        this.triangle = null;
+        this.splitAxis = null;
+        this.left = null;
+        this.right = null;
+    }
+    
+    setSplitAxis(axis) {
+        this.splitAxis = axis;
+    }
+    
+    setTriangle(triangle) {
+        this.triangle = triangle;
+    }
+}
+
+class kdTree {
+    constructor() {
+    }
+    
+    buildTree(triangles, depth, parent) {
+        var axis = depth % 3;
+        
+        if (triangles.length == 0) {
+            return null;
+        }
+        if (triangles.length == 1) {
+            var node = new kdNode(parent);
+            node.setTriangle(triangles[0]);
+            return node;
+        }
+        
+        
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // class Ray used for selecting objects
@@ -1847,7 +1887,7 @@ class UI {
 
 function initWebGL() {
     try { 
-        gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl'); 
+        gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl'); 
     } catch(e) {
     }
     
@@ -1940,13 +1980,13 @@ function generateScene(meshes) {
     lights.push(pointLight1);
     lights.push(pointLight2);
     
-    var sphere1Material = new Phong(nextPhongId++, 0.7, 0.6, 0.7, 16, 0, 0.8, 1.6, 
-        new THREE.Vector3(0.4, 0.4, 0.4), 
-        new THREE.Vector3(0.7, 0.7, 0.7));
+    var sphere1Material = new Phong(nextPhongId++, 0.075, 0.075, 0.2, 20, 0.01, 0.8, 0.95, 
+        new THREE.Vector3(1.0, 1.0, 1.0), 
+        new THREE.Vector3(1.0, 1.0, 1.0));
         
-    var sphere2Material = new Phong(nextPhongId++, 0.55, 0.7, 0.75, 8, 0.5, 0, 0, 
-        new THREE.Vector3(0.6, 0.6, 0.6), 
-        new THREE.Vector3(0.7, 0.7, 0.7));
+    var sphere2Material = new Phong(nextPhongId++, 0.15, 0.25, 1.0, 20, 0.75, 0, 0, 
+        new THREE.Vector3(0.7, 0.7, 0.7), 
+        new THREE.Vector3(1.0, 1.0, 1.0));
         
     var cubeMaterial = new Phong(nextPhongId++, 0.5, 0.9, 0.2, 24, 0, 0, 0, 
         new THREE.Vector3(0.8, 0.1, 0.7), 
