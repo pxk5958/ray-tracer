@@ -40,7 +40,21 @@ The project consists of seven checkpoints and a k-d Tree advanced checkpoint rep
 9. Final Project
 ```
 
-Open any of the corresponding HTML files with your browser to run the ray tracing program.
+Open any of the corresponding HTML files with your browser to run the ray tracing program:
+
+```
+1-setting_the_scene.html
+2-raytracing_framework.html
+3-basic_shading.html
+4-procedural_texturing.html
+5-reflection.html
+6-transmission.html
+7-tone_reproduction.html
+
+8-kd_tree.html
+
+project.html
+```
 
 ## Built With
 
