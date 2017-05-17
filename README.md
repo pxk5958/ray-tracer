@@ -1,4 +1,4 @@
-#WebGL 2.0 Ray Tracer
+# WebGL 2.0 Ray Tracer
 
 WebGL 2.0 Ray Tracer for dynamic scenes
 
