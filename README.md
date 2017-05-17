@@ -72,3 +72,4 @@ The scene can be modified by changing the generateScene() method if present.
 * Framework inspired by https://github.com/evanw/webgl-path-tracing
 * Triangle-AABB intersection from “Fast 3D Triangle-Box Overlap Testing” by Tomas Akenine-Moller [http://www.cs.lth.se/home/Tomas_Akenine_Moller/code/]
 * kd-pushdown traversal algorithm from "Review: Kd-tree Traversal Algorithms for Ray Tracing"  by M. Hapala and V. Havran
+* The Stanford Bunny models were taken from http://graphics.stanford.edu/data/3Dscanrep/
