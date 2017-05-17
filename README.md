@@ -56,6 +56,8 @@ Open any of the corresponding HTML files with your browser to run the ray tracin
 project.html
 ```
 
+The scene can be modified by changing the generateScene() method if present.
+
 ## Built With
 
 * [Cloud9](https://c9.io/) - Online IDE
