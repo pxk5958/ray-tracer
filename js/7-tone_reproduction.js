@@ -2686,7 +2686,7 @@ class UI {
     }
     
     update(time) {
-        this.animate(time);
+        //this.animate(time);
         
         this.controls.update();
         camera.updateMatrixWorld(true);

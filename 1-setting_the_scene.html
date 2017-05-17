@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<head>
+<meta charset="utf-8" />
+</head>
+
+<body>
+    <table width="100%">
+			<tr>
+				<td class="itemBlock" valign="top" style="width:640px" align="center">
+					<div id="canvas" width = "640" height = "480" >
+						<div id="error"><noscript>Please enable JavaScript.</noscript></div>
+					</div>
+					
+					<script src="js/three.min.js"></script>
+					<script src="js/controls/TrackballControls.js"></script>
+					<script src="js/loaders/OBJLoader.js"></script>
+					<script src="js/loaders/PLYLoader.js"></script>
+					<script src="js/stats.min.js"></script>
+					
+			        <script src="js/1-setting_the_scene.js"></script>
+				</td>
+				
+				<td class="itemBlock" valign="top">
+					<div align="center"><strong>Controls:</strong></div><br>
+					<p style="margin-bottom:0"><strong>Rotate: </strong>Left Mouse Button<br>
+					<p style="margin-bottom:0"><strong>Pan: </strong>Right Mouse Button<br>
+					<p style="margin-bottom:0"><strong>Zoom: </strong>Scroll Wheel / Middle Mouse Button<br>
+					<button onclick="javascript:ui.resetControls()">Reset Camera</button>
+				</td>
+			</tr>
+		</table>
+</body>

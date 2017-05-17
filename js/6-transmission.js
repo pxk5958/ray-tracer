@@ -1,3 +1,9 @@
+/**
+ * WebGL Ray Tracer
+ *
+ * @author Pratith Kanagaraj <pxk5958@rit.edu>, 2017
+ */
+
 /* global THREE */
 /* global Stats */
 
@@ -28,7 +34,7 @@ const STATS = 0;   // 0: fps, 1: ms, 2: mb, 3+: custom
 ////////////////////////////////////////////////////////////////////////////////
 
 var gl = null;
-var canvas = document.getElementById('projectCanvas');
+var canvas = document.getElementById('canvas');
 var camera, ui, WIDTH = 800, HEIGHT = 600;
 var nextObjectId = 0;
 var nextPhongId = 0, nextPhongBlinnId = 0, nextPhongCheckeredId = 0;
@@ -483,7 +489,7 @@ vec3 illuminate(HitInfo hitInfo, vec3 rayDir, out float reflectionMix,
     float ka, kd, ks, ke, kReflect, kRefract, ior;
     vec3 Co, Cs;
     
-    // TODO: due to limitation of GLSL to have constant array indices, have to
+    // TODO: due to limitation of WebGL 1.0 GLSL to have constant array indices, have to
     // iterate over the materials to find the correct one. Any better workaround?
     if (hitInfo.materialType == PHONG_MATERIAL) {
         for (int i = 0; i < ` + nextPhongId + `; i++) {
@@ -1188,6 +1194,9 @@ intersectCylinder(rayOrigin, rayDir, hitInfo, `
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// class Triangle
+////////////////////////////////////////////////////////////////////////////////
 
 class Triangle {
     constructor(v0, v1, v2) {
@@ -1204,13 +1213,16 @@ class Triangle {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// class Mesh, which is made up of Triangles
+////////////////////////////////////////////////////////////////////////////////
+
 class Mesh extends Primitive {
     constructor(id, tris = []) {
         super(id);
         this.tris = tris;
         this.transformToWorld();
-        
-        // TODO: find better way to store and modify triangles
+
         // TODO: commented to remove mesh form scene
         //Array.prototype.push.apply(triangles, this.tris);
     }
@@ -1488,8 +1500,7 @@ class RayTracer {
         this.framebuffer = gl.createFramebuffer();
         
         // create textures to render to
-        // TODO: check why it doesn't work
-        var type = /*gl.getExtension('OES_texture_float') ? gl.FLOAT : */gl.UNSIGNED_BYTE;
+        var type = gl.UNSIGNED_BYTE;
         this.textures = [];
         for (var i = 0; i < 1; i++) {
             this.textures.push(gl.createTexture());
@@ -1597,7 +1608,6 @@ class RayTracer {
         for (var i = 0; i < 4; i++) {
             gl.activeTexture(gl.TEXTURE0 + i);
             gl.bindTexture(gl.TEXTURE_2D, this.trianglesTextures[i]);
-            //gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true); // TODO: does this actually speed-up?
             gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.triTextureSize, this.triTextureSize, gl.RGB, gl.FLOAT, this.trianglesData[i]);
         }
         
@@ -1896,13 +1906,9 @@ function loadOBJ(filename) {
         			    var tris = [];
         			    
         			    var geometry = new THREE.Geometry().fromBufferGeometry( child.geometry );
-        			    //geometry.computeFaceNormals();
-                        //geometry.mergeVertices();
-                        //geometry.computeVertexNormals();
         				var faces = geometry.faces;
                         var vertices = geometry.vertices;
                         for (var i = 0; i < faces.length; i++) {
-                            // TODO: clone vertices?
                             tris.push(new Triangle(
                                 vertices[faces[i].a],
                                 vertices[faces[i].b],

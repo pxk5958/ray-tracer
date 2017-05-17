@@ -1,3 +1,9 @@
+/**
+ * WebGL Ray Tracer
+ *
+ * @author Pratith Kanagaraj <pxk5958@rit.edu>, 2017
+ */
+
 /* global THREE */
 
 var raytracer1 = function() {
@@ -32,7 +38,7 @@ function init() {
 	renderer.setSize( WIDTH, HEIGHT );
 
 	// Add the render window to the document
-    var container = document.getElementById( 'canvas1' );
+    var container = document.getElementById( 'canvas' );
 	container.appendChild( renderer.domElement );
 	
 	// Create a camera

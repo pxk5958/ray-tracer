@@ -1,3 +1,9 @@
+/**
+ * WebGL Ray Tracer
+ *
+ * @author Pratith Kanagaraj <pxk5958@rit.edu>, 2017
+ */
+
 /* global THREE */
 
 var raytracer2 = function() {
@@ -19,7 +25,7 @@ const FAR = 10000;
 ////////////////////////////////////////////////////////////////////////////////
 
 var gl = null;
-var canvas = document.getElementById('canvas2');
+var canvas = document.getElementById('canvas');
 var camera, ui, WIDTH = 800, HEIGHT = 600, nextId = 0;
 
 
@@ -726,15 +732,6 @@ float ` + this.intersectStr + ` = intersectPlane(rayOrigin, rayDir, `
     intersect(ray) {
         // TODO: perform intersection test for object selection
         
-        /*
-        var t = (this.point.clone().sub(ray.origin)).dot(this.normal) 
-                / (ray.dir.clone().dot(this.normal));
-        
-        if (t > 0) {
-            return t;
-        }
-        */
-        
         return Number.MAX_VALUE;
     }
 
@@ -782,23 +779,6 @@ float ` + this.intersectStr + ` = intersectRect(rayOrigin, rayDir, `
     intersect(ray) {
         // TODO: perform intersection test for object selection
         
-        /*
-        var t = (this.p0.clone().sub(ray.origin)).dot(this.normal) 
-                / (ray.dir.clone().dot(this.normal));
-        
-        if (t > 0) {
-            var p = ray.origin.clone().add(ray.dir.clone().multiplyScalar(t));
-            var d = p.clone().sub(this.p0);
-            
-            var ddota = d.dot(this.a);
-            var ddotb = d.dot(this.b);
-            if (ddota > 0.0 && ddota < this.a.lengthSq() 
-                && ddotb > 0.0 && ddotb < this.b.lengthSq()) {
-                return t;
-            }
-        }
-        */
-        
         return Number.MAX_VALUE;
     }
 }
@@ -835,30 +815,6 @@ float ` + this.intersectStr + ` = intersectSphere(rayOrigin, rayDir, `
 
     intersect(ray) {
         // TODO: perform intersection test for object selection
-        
-        /*
-        var temp = ray.origin.clone().sub(this.center);
-        var a = ray.dir.clone().dot(ray.dir);
-        var b = 2*temp.clone().dot(ray.dir);
-        var c = temp.clone().dot(temp) - this.radius*this.radius;
-        var disc = b*b - 4*a*c;
-        
-        if (disc > 0) {
-            var e = Math.sqrt(disc);
-            var denom = 2*a;
-            var t = (-b - e) / denom;  // smaller root
-            
-            if (t > 0) {
-                return t;
-            }
-            
-            t = (-b + e) / denom;  // larger root
-            
-            if (t > 0) {
-                return t;
-            }
-        }
-        */
         
         return Number.MAX_VALUE;
     }
@@ -901,18 +857,6 @@ float ` + this.intersectStr + ` = intersectCube(rayOrigin, rayDir, `
 
     intersect(ray) {
         // TODO: perform intersection test for object selection
-        
-        /*
-        var tMin = this.minCorner.clone().sub(ray.origin).divide(ray.dir);
-        var tMax = this.maxCorner.clone().sub(ray.origin).divide(ray.dir);
-        var t1 = tMin.clone().min(tMax);
-        var t2 = tMin.clone().max(tMax);
-        var tNear = Math.max(t1.x, t1.y, t1.z);
-        var tFar = Math.min(t2.x, t2.y, t2.z);
-        if (tNear > 0 && tNear < tFar) {
-            return tNear;
-        }
-        */
         
         return Number.MAX_VALUE;
     }

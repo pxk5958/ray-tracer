@@ -1,3 +1,9 @@
+/**
+ * WebGL Ray Tracer
+ *
+ * @author Pratith Kanagaraj <pxk5958@rit.edu>, 2017
+ */
+
 /* global THREE */
 
 var raytracer3 = function() {
@@ -28,7 +34,7 @@ const SUPERSAMPLING = 5;   // takes average of NxN pixels
 ////////////////////////////////////////////////////////////////////////////////
 
 var gl = null;
-var canvas = document.getElementById('canvas3');
+var canvas = document.getElementById('canvas');
 var camera, ui, WIDTH = 800, HEIGHT = 600;
 var nextObjectId = 0;
 var nextPhongId = 0, nextPhongBlinnId = 0;
@@ -353,7 +359,7 @@ vec3 illuminate(HitInfo hitInfo, vec3 rayDir) {
     vec3 accumulatedColor = vec3(0.0);
     
     Phong material;
-    // TODO: due to limitation of GLSL to have constant array indices, have to
+    // TODO: due to limitation of WebGL 1.0 GLSL to have constant array indices, have to
     // iterate over the materials to find the correct one. Any better workaround?
     if (hitInfo.materialType == PHONG_MATERIAL) {
         for (int i = 0; i < ` + nextPhongId + `; i++) {
