@@ -195,7 +195,9 @@ void main() {
 
 function generateTracerFragmentSource(objects) {
     return `#version 300 es
-    
+
+// kd-pushdown traversal algorithm from "Review: Kd-tree Traversal Algorithms for Ray Tracing"  by M. Hapala and V. Havran
+
 precision highp float;
 precision highp int;
 precision highp usampler2D;
@@ -1723,6 +1725,9 @@ class KdTree {
         }
     }
     
+    /* Triangle-AABB intersection from “Fast 3D Triangle-Box Overlap Testing” by Tomas Akenine-Moller 
+     * [http://www.cs.lth.se/home/Tomas_Akenine_Moller/code/]
+     */
     faceBoxOverlap(boxMin, boxMax, faceIndex) {
         var boxCenter = new THREE.Vector3(
             (boxMin.x + boxMax.x) * 0.5,

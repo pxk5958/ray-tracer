@@ -28,11 +28,11 @@ const L_DMAX = 500;
 const A = 0.18;
 
 // Ray tracing quality constants
-const MAX_RECURSION_DEPTH = 4;
-const SUPERSAMPLING = 2;   // takes average of NxN pixels
+const MAX_RECURSION_DEPTH = 1;
+const SUPERSAMPLING = 1;   // takes average of NxN pixels
 
 // Triangle meshes constants
-const RENDER_TRIANGLES = false;
+const RENDER_TRIANGLES = true;
 const MODEL_FILE_NAME = 'models/bun_zipper_res3.ply';
 const USE_KD_TREE = true;
 const MAX_KD_TREE_DEPTH = 24;
@@ -195,7 +195,7 @@ void main() {
 
 function generateTracerFragmentSource(objects) {
     return `#version 300 es
-    
+
 // kd-pushdown traversal algorithm from "Review: Kd-tree Traversal Algorithms for Ray Tracing"  by M. Hapala and V. Havran
 
 precision highp float;
@@ -2691,7 +2691,7 @@ class UI {
     }
     
     update(time) {
-        //this.animate(time);
+        this.animate(time);
         
         this.controls.update();
         camera.updateMatrixWorld(true);
