@@ -1616,6 +1616,12 @@ class KdLeaf {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// class KdTree represents a k-d Tree, which is used for efficient rendering
+// of triangle meshes. It uses a naive axis selection in round-robin fashion and
+// split position selection by spatial median.
+////////////////////////////////////////////////////////////////////////////////
+
 class KdTree {
     constructor() {
         this.root = null;
@@ -2322,7 +2328,7 @@ class RayTracer {
         gl.bindTexture(gl.TEXTURE_2D, null);
         
         // create render shader
-        console.log(renderFragmentSource);
+        //console.log(renderFragmentSource);
         this.renderProgram = compileShader(renderVertexSource, renderFragmentSource);
         this.renderVertexAttribute = gl.getAttribLocation(this.renderProgram, 'vertex');
         gl.enableVertexAttribArray(this.renderVertexAttribute);
@@ -2408,7 +2414,7 @@ class RayTracer {
             gl.deleteProgram(this.tracerProgram);
         }
         var tracerFragmentSource = generateTracerFragmentSource(this.scene.objects);
-        console.log(tracerFragmentSource);
+        //console.log(tracerFragmentSource);
         this.tracerProgram = compileShader(tracerVertexSource, tracerFragmentSource);
         this.tracerVertexAttribute = gl.getAttribLocation(this.tracerProgram, 'vertex');
         gl.enableVertexAttribArray(this.tracerVertexAttribute);

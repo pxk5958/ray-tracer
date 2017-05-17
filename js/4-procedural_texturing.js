@@ -1567,7 +1567,7 @@ class RayTracer {
             gl.deleteProgram(this.tracerProgram);
         }
         var tracerFragmentSource = generateTracerFragmentSource(this.scene.objects);
-        console.log(tracerFragmentSource);
+        //console.log(tracerFragmentSource);
         this.tracerProgram = compileShader(tracerVertexSource, tracerFragmentSource);
         this.tracerVertexAttribute = gl.getAttribLocation(this.tracerProgram, 'vertex');
         gl.enableVertexAttribArray(this.tracerVertexAttribute);
